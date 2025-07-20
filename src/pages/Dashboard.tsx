@@ -7,6 +7,8 @@ import {
   Box,
   Paper,
   Divider,
+  Snackbar,
+  Slide,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { getUserDetails, logout } from "../api/auth";
@@ -18,17 +20,35 @@ interface User {
   email: string;
   role?: string;
 }
-
+function SlideUpTransition(props: any) {
+  return <Slide {...props} direction="down" />;
+}
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error" as "error" | "success",
+  });
   const handleLogout = async () => {
-    localStorage.clear();
-    await logout();
-    navigate("/login");
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      await logout(refreshToken);
+      localStorage.clear();
+      navigate("/login");
+    } catch (error: any) {
+      console.error(error);
+      setSnackbar({
+        open: true,
+        message:
+          error?.message ||
+          "Some issues with logout. Please check your internet connection and try again",
+        severity: "error",
+      });
+    }
   };
 
   const fetchUserDetails = async () => {
@@ -97,6 +117,21 @@ export default function DashboardPage() {
           )}
         </Paper>
       </Box>
+      <Snackbar
+        open={snackbar.open}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        autoHideDuration={4000}
+        TransitionComponent={SlideUpTransition}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

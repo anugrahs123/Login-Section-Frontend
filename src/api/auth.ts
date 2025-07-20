@@ -43,7 +43,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 // Refresh token function
 export async function refreshToken(
   payload: RefreshTokenPayload
-): Promise<{ accessToken: string }> {
+): Promise<{ accessToken: string; refreshToken: string }> {
   try {
     const response = await axiosServices.post(authEndpoints.refresh, payload);
     return response.data;
@@ -57,9 +57,11 @@ export async function refreshToken(
 }
 
 // Logout function
-export async function logout(): Promise<void> {
+export async function logout(refreshToken: string | null): Promise<void> {
   try {
-    await axiosServices.post(authEndpoints.logout);
+    await axiosServices.post(authEndpoints.logout, {
+      refreshToken: refreshToken,
+    });
     localStorage.removeItem("serviceToken");
     localStorage.removeItem("refreshToken");
   } catch (error: any) {

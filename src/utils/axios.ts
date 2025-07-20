@@ -41,6 +41,7 @@ axiosServices.interceptors.response.use(
           });
 
           localStorage.setItem("accessToken", res.accessToken);
+          localStorage.setItem("refreshToken", res.refreshToken);
 
           originalRequest.headers[
             "Authorization"
