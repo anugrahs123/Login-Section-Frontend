@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { refreshToken } from "../api/auth";
 
 const axiosServices = axios.create({
@@ -41,6 +41,7 @@ axiosServices.interceptors.response.use(
           });
 
           localStorage.setItem("accessToken", res.accessToken);
+          localStorage.setItem("refreshToken", res.refreshToken);
 
           originalRequest.headers[
             "Authorization"
@@ -72,20 +73,5 @@ axiosServices.interceptors.response.use(
     );
   }
 );
-
-// Generic fetchers
-export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
-  const [url, config] = Array.isArray(args) ? args : [args];
-  const res = await axiosServices.get(url, { ...config });
-  return res.data;
-};
-
-export const fetcherPost = async (
-  args: string | [string, AxiosRequestConfig]
-) => {
-  const [url, config] = Array.isArray(args) ? args : [args];
-  const res = await axiosServices.post(url, { ...config });
-  return res.data;
-};
 
 export default axiosServices;

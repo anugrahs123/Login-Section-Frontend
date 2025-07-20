@@ -1,4 +1,4 @@
-import axiosServices from "../utils/axios"; // adjust the path as per your structure
+import axiosServices from "../utils/axios";
 
 // Define all auth-related endpoints
 export const authEndpoints = {
@@ -35,7 +35,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
     const response = await axiosServices.post(authEndpoints.login, payload);
     return response.data;
   } catch (error: any) {
-    console.error("❌ Login error:", error?.response?.data || error.message);
+    console.error("Login error:", error?.response?.data || error.message);
     throw error;
   }
 }
@@ -43,13 +43,13 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 // Refresh token function
 export async function refreshToken(
   payload: RefreshTokenPayload
-): Promise<{ accessToken: string }> {
+): Promise<{ accessToken: string; refreshToken: string }> {
   try {
     const response = await axiosServices.post(authEndpoints.refresh, payload);
     return response.data;
   } catch (error: any) {
     console.error(
-      "❌ Token refresh error:",
+      "Token refresh error:",
       error?.response?.data || error.message
     );
     throw error;
@@ -57,13 +57,15 @@ export async function refreshToken(
 }
 
 // Logout function
-export async function logout(): Promise<void> {
+export async function logout(refreshToken: string | null): Promise<void> {
   try {
-    await axiosServices.post(authEndpoints.logout);
+    await axiosServices.post(authEndpoints.logout, {
+      refreshToken: refreshToken,
+    });
     localStorage.removeItem("serviceToken");
     localStorage.removeItem("refreshToken");
   } catch (error: any) {
-    console.error("❌ Logout error:", error?.response?.data || error.message);
+    console.error("Logout error:", error?.response?.data || error.message);
     throw error;
   }
 }
@@ -74,7 +76,7 @@ export async function getUserDetails() {
     const response = await axiosServices.get(authEndpoints.userDetails);
     return response.data;
   } catch (error: any) {
-    console.error("❌ Error fetching user details", error);
+    console.error("Error fetching user details", error);
     throw error;
   }
 }
